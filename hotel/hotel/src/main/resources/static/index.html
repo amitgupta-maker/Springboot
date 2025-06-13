@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Room Allotment</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      max-width: 500px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    form input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    form button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+    }
+
+    form button:hover {
+      background-color: #45a049;
+    }
+
+    table {
+      width: 90%;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    @media (max-width: 600px) {
+      form, table {
+        width: 95%;
+      }
+
+      th, td {
+        padding: 10px;
+      }
+    }
+  </style>
+  <script>
+    async function addRoom() {
+      const room = {
+        studentId: document.getElementById("studentId").value,
+        roomType: document.getElementById("roomType").value,
+        duration: document.getElementById("duration").value
+      };
+
+      const response = await fetch("/api/room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(room)
+      });
+
+      if (response.ok) {
+        alert("✅ Room added successfully!");
+        document.querySelector("form").reset();
+        loadRooms();
+      } else {
+        alert("❌ Error adding room.");
+      }
+    }
+
+    async function loadRooms() {
+      const response = await fetch("/api/rooms");
+      const data = await response.json();
+
+      const table = document.getElementById("roomTableBody");
+      table.innerHTML = "";
+      data.forEach(room => {
+        table.innerHTML += `
+          <tr>
+            <td>${room.id}</td>
+            <td>${room.studentId}</td>
+            <td>${room.roomType}</td>
+            <td>${room.duration}</td>
+          </tr>
+        `;
+      });
+    }
+
+    window.onload = loadRooms;
+  </script>
+</head>
+<body>
+  <h1>Room Allotment Form</h1>
+  <form onsubmit="event.preventDefault(); addRoom();">
+    <label>Student ID</label>
+    <input type="number" id="studentId" required>
+
+    <label>Room Type</label>
+    <input type="text" id="roomType" required>
+
+    <label>Duration (months)</label>
+    <input type="number" id="duration" required>
+
+    <button type="submit">Add Room</button>
+  </form>
+
+  <h2>All Room Allotments</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Student ID</th>
+        <th>Room Type</th>
+        <th>Duration</th>
+      </tr>
+    </thead>
+    <tbody id="roomTableBody"></tbody>
+  </table>
+</body>
+</html>
